@@ -14,7 +14,7 @@ def render_footer():
     with cols[1]:
         st.markdown("#### " + locale.get_text("footer.links"))
         st.markdown("- [GitHub](https://github.com/luyen-tran/nuclear-simulation-tool)")
-        st.markdown(f"- [{locale.get_text('footer.documentation')}](https://github.com/luyen-tran/nuclear-simulation-tool/blob/main/README.md)")
+        st.markdown(f"- [{locale.get_text('footer.documentation')}](https://github.com/luyen-tran/nuclear-simulation-tool/blob/main/README.MD)")
         
     with cols[2]:
         st.markdown("#### " + locale.get_text("footer.info"))
