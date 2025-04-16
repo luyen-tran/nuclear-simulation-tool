@@ -6,6 +6,7 @@ from ui.theme_manager import theme_manager
 from ui.components.header import render_header
 from ui.conclusions import get_conclusions
 from ui.components.charts import plotly_chart_with_theme
+from models.flash_effects import FlashEffectsModel
 
 def render_page():
     """Hiển thị trang mô phỏng hiệu ứng ánh sáng hạt nhân"""
@@ -59,34 +60,30 @@ def render_page():
     # Chạy mô phỏng
     if st.button(locale.get_text("flash.illuminance"), type="primary", use_container_width=True):
         with st.spinner(locale.get_text("common.calculating")):
+            # Ánh xạ từ lựa chọn ngôn ngữ sang giá trị trong model
+            day_time_mapping = {
+                locale.get_text("flash.day_time"): "Ngày",
+                locale.get_text("flash.twilight"): "Chạng vạng",
+                locale.get_text("flash.night_time"): "Đêm"
+            }
+            
+            # Khởi tạo model với thông số đầu vào
+            model = FlashEffectsModel(
+                yield_kt=yield_kt, 
+                burst_height=burst_height,
+                day_condition=day_time_mapping[day_time]
+            )
+            
             # Tạo dữ liệu mô phỏng
             distances = np.linspace(0.1, max_distance, 100)  # km
             
-            # Ước tính năng lượng ánh sáng từ vụ nổ
-            # E ∝ Y^(2/3) × e^(-d/H) / d²
+            # Lấy kết quả từ model
+            results = model.calculate_eye_effects(distances)
             
-            # Tham số phụ thuộc thời gian trong ngày
-            pupil_dilation = {
-                locale.get_text("flash.day_time"): 1.0,
-                locale.get_text("flash.twilight"): 1.5,
-                locale.get_text("flash.night_time"): 2.5
-            }
-            
-            dilation_factor = pupil_dilation[day_time]
-            
-            # Tính độ rọi (illuminance)
-            illuminance = 9e9 * (yield_kt**(2/3)) * (np.exp(-distances/(burst_height/1000 + 10))) / (distances**2)
-            
-            # Tính xác suất tổn thương mắt
-            # Sử dụng các ngưỡng dựa trên tài liệu khoa học
-            flash_blindness_threshold = 7e3  # lux
-            retinal_burn_threshold = 6e5     # lux
-            permanent_damage_threshold = 4e6  # lux
-            
-            # Điều chỉnh theo độ giãn đồng tử
-            flash_blindness_prob = 1 - 1/(1 + np.exp((illuminance*dilation_factor - flash_blindness_threshold)/(flash_blindness_threshold*0.1)))
-            retinal_burn_prob = 1 - 1/(1 + np.exp((illuminance*dilation_factor - retinal_burn_threshold)/(retinal_burn_threshold*0.1)))
-            permanent_damage_prob = 1 - 1/(1 + np.exp((illuminance*dilation_factor - permanent_damage_threshold)/(permanent_damage_threshold*0.1)))
+            illuminance = results['illuminance']
+            flash_blindness_prob = results['temporary_blindness_probability']
+            retinal_burn_prob = results['retinal_burn_probability']
+            permanent_damage_prob = results['permanent_damage_probability']
             
             # Tạo biểu đồ độ rọi
             fig1 = go.Figure()
@@ -102,7 +99,7 @@ def render_page():
             # Thêm các ngưỡng
             fig1.add_trace(go.Scatter(
                 x=[0, max_distance],
-                y=[flash_blindness_threshold, flash_blindness_threshold],
+                y=[model.flash_blindness_threshold, model.flash_blindness_threshold],
                 mode='lines',
                 name=locale.get_text("flash.temporary_blindness_threshold"),
                 line=dict(dash='dash', color='blue')
@@ -110,10 +107,18 @@ def render_page():
             
             fig1.add_trace(go.Scatter(
                 x=[0, max_distance],
-                y=[retinal_burn_threshold, retinal_burn_threshold],
+                y=[model.retinal_burn_threshold, model.retinal_burn_threshold],
                 mode='lines',
                 name=locale.get_text("flash.retinal_burn_threshold"),
                 line=dict(dash='dash', color='orange')
+            ))
+            
+            fig1.add_trace(go.Scatter(
+                x=[0, max_distance],
+                y=[model.permanent_damage_threshold, model.permanent_damage_threshold],
+                mode='lines',
+                name=locale.get_text("flash.permanent_damage_threshold"),
+                line=dict(dash='dash', color='red')
             ))
             
             # Cấu hình biểu đồ
@@ -168,10 +173,20 @@ def render_page():
             # Hiển thị biểu đồ
             plotly_chart_with_theme(fig2, use_container_width=True)
             
+            # Tính khoảng cách tối đa cho mỗi loại tác động
+            max_flash_blindness = model.get_max_effect_distance("temporary_blindness", 0.5)
+            max_retinal_burn = model.get_max_effect_distance("retinal_burn", 0.5)
+            max_permanent_damage = model.get_max_effect_distance("permanent_damage", 0.5)
+            
             # Hiển thị thông tin bổ sung
             with st.expander(locale.get_text("flash.info_title")):
                 st.markdown(f"""
                 **{locale.get_text("flash.condition")}:** {day_time}
+                
+                **{locale.get_text("flash.max_distances")}:**
+                - {locale.get_text("flash.temporary_blindness")}: {max_flash_blindness:.2f} km
+                - {locale.get_text("flash.retinal_burn")}: {max_retinal_burn:.2f} km
+                - {locale.get_text("flash.permanent_damage")}: {max_permanent_damage:.2f} km
                 
                 **{locale.get_text("flash.effects_title")}:**
                 - **{locale.get_text("flash.temporary_blindness_info")}:** {locale.get_text("flash.temporary_blindness_desc")}
