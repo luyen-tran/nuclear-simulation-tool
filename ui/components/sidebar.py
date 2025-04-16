@@ -194,6 +194,11 @@ def _apply_theme_css():
             max-width: 300px !important;
         }}
         
+        /* Hide sidebar header */
+        [data-testid="stSidebarHeader"] {{
+            display: none !important;
+        }}
+        
         /* Theme colors */
         html[theme="{theme_manager.get_theme()}"], body, .stApp, [data-testid="stAppViewContainer"],
         .main, [data-testid="stVerticalBlock"], .element-container, .stMarkdown, .block-container {{
@@ -222,10 +227,10 @@ def _apply_theme_css():
             border-radius: 6px !important;
         }}
         
-        button:hover, .stButton>button:hover {{
-            background-color: var(--hover-color) !important;
-            border-color: var(--button-border) !important;
-        }}
+        # button:hover, .stButton>button:hover {{
+        #     background-color: var(--hover-color) !important;
+        #     border-color: var(--button-border) !important;
+        # }}
         
         [data-testid="stExpander"] {{
             background-color: var(--expander-color) !important;
