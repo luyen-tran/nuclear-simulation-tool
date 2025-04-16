@@ -46,20 +46,49 @@ class SedovTaylorModel:
         Sử dụng mô hình sóng Friedlander cải tiến để mô phỏng sự suy giảm áp suất theo thời gian
         """
         R = self.blast_radius(time)
-        if distance > R:
-            return 0.0  # Áp suất dư bằng 0 nếu sóng xung kích chưa tới
         
-        # Tính áp suất tại mặt sóng xung kích - cải thiện tính chính xác
-        shock_pressure = 0.75 * self.ambient_density * (R / time)**2 / self.gamma
-        
-        # Sử dụng mô hình sóng Friedlander cải tiến cho sự suy giảm áp suất
-        rel_distance = distance / R
-        if rel_distance > 0.95:  # Gần mặt sóng xung kích
-            return shock_pressure * (1 - rel_distance/0.95)
+        # Handle numpy arrays by vectorizing the operation
+        if isinstance(distance, np.ndarray):
+            # Create output array of same shape
+            result = np.zeros_like(distance, dtype=float)
+            
+            # Find points where distance > R
+            beyond_radius = distance > R
+            
+            # Calculate relative distance for all points
+            rel_distance = np.divide(distance, R, out=np.zeros_like(distance, dtype=float), where=~beyond_radius)
+            
+            # Calculate shock pressure
+            shock_pressure = 0.75 * self.ambient_density * (R / time)**2 / self.gamma
+            
+            # Apply near-shock condition (rel_distance > 0.95)
+            near_shock = (~beyond_radius) & (rel_distance > 0.95)
+            if np.any(near_shock):
+                result[near_shock] = shock_pressure * (1 - rel_distance[near_shock]/0.95)
+            
+            # Apply internal condition (rel_distance <= 0.95)
+            internal = (~beyond_radius) & (~near_shock)
+            if np.any(internal):
+                tau = 0.5
+                result[internal] = shock_pressure * (1 - rel_distance[internal]) * np.exp(-rel_distance[internal]/tau)
+                
+            return result
         else:
-            # Suy giảm hàm mũ phía sau mặt sóng xung kích
-            tau = 0.5  # Thời gian đặc trưng cho sự suy giảm
-            return shock_pressure * (1 - rel_distance) * np.exp(-rel_distance/tau)
+            # Original scalar implementation
+            if distance > R:
+                return 0.0  # Áp suất dư bằng 0 nếu sóng xung kích chưa tới
+            
+            # Tính áp suất tại mặt sóng xung kích - cải thiện tính chính xác
+            shock_pressure = 0.75 * self.ambient_density * (R / time)**2 / self.gamma
+            
+            # Sử dụng mô hình sóng Friedlander cải tiến cho sự suy giảm áp suất
+            rel_distance = distance / R
+            if rel_distance > 0.95:  # Gần mặt sóng xung kích
+                return shock_pressure * (1 - rel_distance/0.95)
+            else:
+                # Suy giảm hàm mũ phía sau mặt sóng xung kích
+                tau = 0.5  # Thời gian đặc trưng cho sự suy giảm
+                return shock_pressure * (1 - rel_distance) * np.exp(-rel_distance/tau)
     
     def simulate_blast_wave(self, max_distance=10000, times=None, num_points=200):
         """
@@ -257,51 +286,40 @@ class SedovTaylorModel:
         pressures = simulation_data['pressures']
         
         # Chuẩn bị nhãn theo ngôn ngữ
-        labels = {
-            'vi': {
-                'pressure_time': f'Áp suất sóng xung kích lúc t={times[time_index]:.2f}s',
-                'distance': 'Khoảng cách (m)',
-                'pressure': 'Áp suất dư (Pa)',
-                'window': 'Cửa kính vỡ',
-                'moderate': 'Thiệt hại kết cấu trung bình',
-                'collapse': 'Sập đổ công trình',
-                'concrete': 'Hư hại bê tông',
-                'propagation': 'Lan truyền sóng xung kích',
-                'time': 'Thời gian (s)',
-                'shock_front': 'Mặt sóng xung kích'
-            },
-            'en': {
-                'pressure_time': f'Blast Wave Pressure at t={times[time_index]:.2f}s',
-                'distance': 'Distance (m)',
-                'pressure': 'Overpressure (Pa)',
-                'window': 'Window breakage',
-                'moderate': 'Moderate structural damage',
-                'collapse': 'Building collapse',
-                'concrete': 'Concrete damage',
-                'propagation': 'Blast Wave Propagation',
-                'time': 'Time (s)',
-                'shock_front': 'Shock front'
-            }
-        }
+        from ui.translator import translator as locale
         
-        # Sử dụng ngôn ngữ mặc định nếu không có
-        l = labels.get(lang, labels['vi'])
+        # Sử dụng translator thay vì hardcode các chuỗi ngôn ngữ
+        current_lang = locale.current_lang
+        locale.set_lang(lang)  # Tạm thời đặt ngôn ngữ theo tham số
+        
+        labels = {
+            'pressure_time': locale.get_text("blast.chart_title", time=times[time_index] if time_index is not None else 0),
+            'distance': locale.get_text("blast.x_axis"),
+            'pressure': locale.get_text("blast.y_axis"),
+            'window': locale.get_text("chart.window_breakage"),
+            'moderate': locale.get_text("chart.moderate_damage"),
+            'collapse': locale.get_text("chart.severe_damage"),
+            'concrete': locale.get_text("chart.reinforced_damage"),
+            'propagation': locale.get_text("blast.chart_title_animation"),
+            'time': locale.get_text("chart.time_seconds"),
+            'shock_front': locale.get_text("blast.shock_front")
+        }
         
         if time_index is not None:
             # Vẽ đồ thị áp suất theo khoảng cách tại một thời điểm cụ thể
             plt.figure(figsize=(10, 6))
             plt.plot(distances, pressures[:, time_index])
-            plt.title(l['pressure_time'])
-            plt.xlabel(l['distance'])
-            plt.ylabel(l['pressure'])
+            plt.title(labels['pressure_time'])
+            plt.xlabel(labels['distance'])
+            plt.ylabel(labels['pressure'])
             plt.grid(True)
             
             # Đánh dấu ngưỡng thiệt hại
             if show_damage:
-                thresholds = [(3000, l['window']), 
-                             (7000, l['moderate']),
-                             (15000, l['collapse']),
-                             (35000, l['concrete'])]
+                thresholds = [(3000, labels['window']), 
+                             (7000, labels['moderate']),
+                             (15000, labels['collapse']),
+                             (35000, labels['concrete'])]
                 for threshold, label in thresholds:
                     plt.axhline(y=threshold, color='r', linestyle='--', alpha=0.7)
                     plt.text(distances[-1]*0.8, threshold*1.1, label)
@@ -318,13 +336,16 @@ class SedovTaylorModel:
             
             # Thêm đường biểu diễn mặt sóng xung kích
             plt.plot(times, simulation_data['radius'], 'w--', linewidth=2, 
-                    label=l['shock_front'])
+                    label=labels['shock_front'])
             
-            plt.colorbar(contour, label=l['pressure'])
-            plt.title(l['propagation'])
-            plt.xlabel(l['time'])
-            plt.ylabel(l['distance'])
+            plt.colorbar(contour, label=labels['pressure'])
+            plt.title(labels['propagation'])
+            plt.xlabel(labels['time'])
+            plt.ylabel(labels['distance'])
             plt.legend()
+            
+        # Khôi phục ngôn ngữ ban đầu
+        locale.set_lang(current_lang)
             
         plt.tight_layout()
         plt.show()
@@ -337,58 +358,46 @@ class SedovTaylorModel:
             distances: Danh sách các khoảng cách (m) để đánh giá
             lang: Ngôn ngữ báo cáo ('vi' cho tiếng Việt, 'en' cho tiếng Anh)
         """
-        # Chuẩn bị bản dịch
+        # Sử dụng translator thay vì hardcode các chuỗi ngôn ngữ
+        from ui.translator import translator as locale
+        
+        # Lưu ngôn ngữ hiện tại
+        current_lang = locale.current_lang
+        locale.set_lang(lang)  # Tạm thời đặt ngôn ngữ theo tham số
+        
+        # Chuẩn bị bản dịch từ hệ thống dịch
         translations = {
-            'vi': {
-                'title': f"Báo cáo phân tích vụ nổ hạt nhân ({self.energy/4.184e12:.1f} kt)",
-                'at_distance': "\nTại khoảng cách {:.1f} km từ tâm vụ nổ:",
-                'arrival': "  Thời gian sóng xung kích tới: {:.2f} giây",
-                'peak_pressure': "  Áp suất dư đỉnh: {:.2f} kPa",
-                'peak_wind': "  Tốc độ gió đỉnh: {:.1f} m/s ({:.1f} km/h)",
-                'thermal': "  Bức xạ nhiệt: {:.1f} kJ/m²",
-                'initial_rad': "  Bức xạ ion hóa ban đầu: {:.2f} Gy",
-                'fallout': "  Phóng xạ rơi (sau 1 giờ): {:.2f} Gy",
-                'damage': "  Đánh giá thiệt hại:",
-                'no_damage': "    - Không có thiệt hại đáng kể về kết cấu",
-                'note': "\nLưu ý: Mô phỏng này sử dụng mô hình sóng xung kích Sedov-Taylor và",
-                'purpose': "cung cấp kết quả gần đúng chỉ cho mục đích giáo dục."
-            },
-            'en': {
-                'title': f"Nuclear Blast Analysis Report ({self.energy/4.184e12:.1f} kt yield)",
-                'at_distance': "\nAt {:.1f} km from ground zero:",
-                'arrival': "  Blast arrival: {:.2f} seconds",
-                'peak_pressure': "  Peak overpressure: {:.2f} kPa",
-                'peak_wind': "  Peak wind speed: {:.1f} m/s ({:.1f} km/h)",
-                'thermal': "  Thermal radiation: {:.1f} kJ/m²",
-                'initial_rad': "  Initial ionizing radiation: {:.2f} Gy",
-                'fallout': "  Fallout radiation (after 1 hour): {:.2f} Gy",
-                'damage': "  Damage assessment:",
-                'no_damage': "    - No significant structural damage",
-                'note': "\nNote: This simulation uses the Sedov-Taylor blast wave model and",
-                'purpose': "provides approximate results for educational purposes only."
-            }
+            'title': locale.get_text("blast.report.title").format(yield_kt=self.energy/4.184e12),
+            'at_distance': locale.get_text("blast.report.at_distance"),
+            'arrival': locale.get_text("blast.report.arrival"),
+            'peak_pressure': locale.get_text("blast.report.peak_pressure"),
+            'peak_wind': locale.get_text("blast.report.peak_wind"),
+            'thermal': locale.get_text("blast.report.thermal"),
+            'initial_rad': locale.get_text("blast.report.initial_rad"),
+            'fallout': locale.get_text("blast.report.fallout"),
+            'damage': locale.get_text("blast.report.damage"),
+            'no_damage': locale.get_text("blast.report.no_damage"),
+            'note': locale.get_text("blast.report.note"),
+            'purpose': locale.get_text("blast.report.purpose")
         }
         
-        # Sử dụng ngôn ngữ mặc định nếu không có
-        t = translations.get(lang, translations['vi'])
-        
-        print(t['title'])
+        print(translations['title'])
         print("-" * 50)
         
         for distance in distances:
             effects = self.calculate_effects(distance)
             
-            print(t['at_distance'].format(distance/1000))
-            print(t['arrival'].format(effects['arrival_time']))
-            print(t['peak_pressure'].format(effects['max_overpressure']/1000))
-            print(t['peak_wind'].format(effects['wind_speed'], effects['wind_speed']*3.6))
-            print(t['thermal'].format(effects['thermal_radiation']/1000))
-            print(t['initial_rad'].format(effects['radiation']['initial_radiation']))
-            print(t['fallout'].format(effects['radiation']['fallout_radiation']))
+            print(translations['at_distance'].format(distance/1000))
+            print(translations['arrival'].format(effects['arrival_time']))
+            print(translations['peak_pressure'].format(effects['max_overpressure']/1000))
+            print(translations['peak_wind'].format(effects['wind_speed'], effects['wind_speed']*3.6))
+            print(translations['thermal'].format(effects['thermal_radiation']/1000))
+            print(translations['initial_rad'].format(effects['radiation']['initial_radiation']))
+            print(translations['fallout'].format(effects['radiation']['fallout_radiation']))
             
             # Đánh giá thiệt hại
             damage = self.damage_assessment(effects['max_overpressure'])
-            print(t['damage'])
+            print(translations['damage'])
             damage_found = False
             for description, is_damaged in damage.items():
                 if is_damaged:
@@ -396,7 +405,10 @@ class SedovTaylorModel:
                     damage_found = True
             
             if not damage_found:
-                print(t['no_damage'])
+                print(translations['no_damage'])
             
-        print(t['note'])
-        print(t['purpose'])
+        print(translations['note'])
+        print(translations['purpose'])
+        
+        # Khôi phục ngôn ngữ ban đầu
+        locale.set_lang(current_lang)
