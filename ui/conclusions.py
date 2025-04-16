@@ -172,11 +172,11 @@ conclusions = {
         
         Mô phỏng phản ứng dây chuyền minh họa các nguyên tắc cơ bản của phân hạch hạt nhân:
         
-        1. **Sự Phụ Thuộc Khối Lượng Tới Hạn**: Mô phỏng cho thấy hành vi phản ứng dây chuyền thay đổi mạnh mẽ xung quanh ngưỡng khối lượng tới hạn. Dưới ngưỡng này, phản ứng tắt dần; trên ngưỡng này, sự tăng trưởng theo hàm mũ xảy ra.
+        1. **Sự Phụ Thuộc Khối Lượng Tới Hạn**: Mô phỏng cho thấy hành vi phản ứng dây chuyền thay đổi mạnh xung quanh ngưỡng khối lượng tới hạn. Dưới ngưỡng này, phản ứng tắt dần; trên ngưỡng này, sự tăng trưởng theo hàm mũ xảy ra.
         
-        2. **Ảnh Hưởng của Độ Giàu**: Độ giàu uranium cao hơn làm giảm đáng kể yêu cầu khối lượng tới hạn, giải thích tại sao uranium cấp vũ khí yêu cầu độ giàu cao hơn nhiều so với nhiên liệu cho lò phản ứng.
+        2. **Ảnh Hưởng của Độ Làm Giàu**: Độ làm giàu uranium cao hơn làm giảm đáng kể yêu cầu khối lượng tới hạn, giải thích tại sao uranium cấp vũ khí yêu cầu độ làm giàu cao hơn nhiều so với nhiên liệu dùng cho lò phản ứng.
         
-        3. **Động Lực Quần Thể Neutron**: Sự tăng trưởng theo hàm mũ của quần thể neutron trong các hệ siêu tới hạn tuân theo các mô hình toán học đã được thiết lập, với thời gian nhân đôi phụ thuộc vào tính phản ứng.
+        3. **Động Lực Số Lượng Nơtron**: Sự tăng trưởng theo hàm mũ của số lượng nơtron trong các hệ siêu tới hạn tuân theo các mô hình toán học đã được thiết lập, với thời gian nhân đôi phụ thuộc vào tính phản ứng.
         
         4. **Đặc Điểm Giải Phóng Năng Lượng**: Sự giải phóng năng lượng nhanh chóng trong các hệ siêu tới hạn cho thấy tại sao phản ứng dây chuyền không kiểm soát có thể dẫn đến năng suất nổ trong khoảng thời gian mili giây đến micro giây.
         
@@ -184,35 +184,35 @@ conclusions = {
         """,
         
         "neutron_transport": """
-        ### Kết Luận Khoa Học về Vận Chuyển Neutron
+        ### Kết Luận Khoa Học về Vận Chuyển Nơtron
         
-        Mô phỏng vận chuyển neutron tiết lộ các khía cạnh quan trọng về cách neutron di chuyển và tương tác trong vật liệu phân hạch:
+        Mô phỏng vận chuyển nơtron tiết lộ các khía cạnh quan trọng về cách nơtron di chuyển và tương tác trong vật liệu phân hạch:
         
-        1. **Ảnh Hưởng Phân Bố Không Gian**: Mô phỏng minh họa cách dòng neutron thay đổi theo không gian trong một hệ thống, với nồng độ cao hơn ở vùng trung tâm và giảm dần về phía biên.
+        1. **Ảnh Hưởng Phân Bố Không Gian**: Mô phỏng minh họa cách thông lượng nơtron thay đổi theo không gian trong một hệ thống, với nồng độ cao hơn ở vùng trung tâm và giảm dần về phía biên.
         
         2. **Độ Nhạy Tiết Diện**: Kết quả cho thấy độ nhạy cao đối với thay đổi trong tiết diện (đặc biệt là phân hạch và hấp thụ), minh họa tại sao dữ liệu hạt nhân chính xác là quan trọng cho việc mô hình hóa chính xác.
         
-        3. **Tác Động Hình Học**: Các hình dạng khác nhau tạo ra các mẫu phân bố neutron đặc trưng ảnh hưởng đến tính tới hạn và hành vi tổng thể của hệ thống.
+        3. **Tác Động Hình Học**: Các hình dạng khác nhau tạo ra các mẫu phân bố nơtron đặc trưng ảnh hưởng đến tính tới hạn và hành vi tổng thể của hệ thống.
         
-        4. **Hiện Tượng Rò Rỉ**: Mô phỏng nắm bắt được hiện tượng rò rỉ neutron tại biên, một yếu tố quan trọng trong việc xác định liệu một hệ thống có thể duy trì phản ứng dây chuyền hay không.
+        4. **Hiện Tượng Rò Rỉ**: Mô phỏng nắm bắt được hiện tượng rò rỉ nơtron tại biên, một yếu tố quan trọng trong việc xác định liệu một hệ thống có thể duy trì phản ứng dây chuyền hay không.
         
         Những nguyên tắc này là nền tảng cho thiết kế lò phản ứng hạt nhân, an toàn tới hạn, và hiểu biết về vật lý vũ khí.
         """,
         
         "monte_carlo": """
-        ### Kết Luận Khoa Học về Mô Hình Monte Carlo cho Neutron
+        ### Kết Luận Khoa Học về Mô Hình Monte Carlo cho Nơtron
         
-        Mô phỏng Monte Carlo cung cấp hiểu biết xác suất về hành vi neutron:
+        Mô phỏng Monte Carlo cung cấp hiểu biết xác suất về hành vi nơtron:
         
-        1. **Bản Chất Thống Kê của Phản Ứng Hạt Nhân**: Mô phỏng minh họa bản chất vốn có tính xác suất của tương tác neutron, cho thấy tại sao phương pháp thống kê là cần thiết cho việc mô hình hóa chính xác.
+        1. **Bản Chất Thống Kê của Phản Ứng Hạt Nhân**: Mô phỏng minh họa bản chất vốn có tính xác suất của tương tác nơtron, cho thấy tại sao phương pháp thống kê là cần thiết cho việc mô hình hóa chính xác.
         
-        2. **Tác Động Tiết Diện**: Kết quả cho thấy cách các tiết diện khác nhau ảnh hưởng đến hành vi quần thể neutron, bao gồm quá trình tán xạ, hấp thụ và phân hạch.
+        2. **Tác Động Tiết Diện**: Kết quả cho thấy cách các tiết diện khác nhau ảnh hưởng đến hành vi số lượng nơtron, bao gồm quá trình tán xạ, hấp thụ và phân hạch.
         
         3. **Phân Tích Chuỗi Phân Hạch**: Phân tích từ thế hệ này đến thế hệ khác cung cấp hình ảnh rõ ràng về các yếu tố nhân và điều kiện tới hạn.
         
         4. **Phân Bố Độ Dài Đường Đi**: Mô phỏng tiết lộ phân bố độ dài đường đi đặc trưng phụ thuộc vào thuộc tính vật liệu, quan trọng cho tính toán che chắn và tới hạn.
         
-        5. **Ảnh Hưởng Kích Thước Hệ Thống**: Kết quả minh họa cách hình học hữu hạn ảnh hưởng đến xác suất thoát neutron và tính tới hạn của hệ thống.
+        5. **Ảnh Hưởng Kích Thước Hệ Thống**: Kết quả minh họa cách hình học hữu hạn ảnh hưởng đến xác suất thoát nơtron và tính tới hạn của hệ thống.
         
         Phương pháp Monte Carlo đại diện cho tiêu chuẩn vàng trong mô hình hóa hệ thống hạt nhân khi yêu cầu độ chính xác cao.
         """,
@@ -252,41 +252,41 @@ conclusions = {
         
         6. **Tác Động Khí Quyển**: Điều kiện khí quyển điều chỉnh đáng kể sự truyền bức xạ nhiệt, với điều kiện sương mù hoặc nhiều mây làm giảm hiệu ứng nhiệt.
         
-        Hiểu biết về những hiệu ứng này là rất quan trọng cho cả phân tích lịch sử và lập kế hoạch phòng thủ dân sự.
+        Hiểu biết về những hiệu ứng này rất quan trọng cho cả phân tích lịch sử và lập kế hoạch phòng thủ dân sự.
         """,
         
         "emp_effects": """
-        ### Kết Luận Khoa Học về Hiệu Ứng EMP
+        ### Kết Luận Khoa Học về Hiệu Ứng Xung Điện Từ
         
-        Mô phỏng Xung Điện Từ (EMP) tiết lộ một số khía cạnh quan trọng của EMP hạt nhân:
+        Mô phỏng Xung Điện Từ (EMP) tiết lộ một số khía cạnh quan trọng của xung điện từ hạt nhân:
         
-        1. **Khuếch Đại Độ Cao**: Mô phỏng xác nhận cách các vụ nổ hạt nhân ở độ cao tạo ra hiệu ứng EMP mạnh hơn và rộng hơn đáng kể thông qua tương tác với từ trường Trái đất.
+        1. **Khuếch Đại Độ Cao**: Mô phỏng xác nhận cách các vụ nổ hạt nhân ở độ cao tạo ra hiệu ứng xung điện từ mạnh hơn và rộng hơn đáng kể thông qua tương tác với từ trường Trái đất.
         
-        2. **Đặc Điểm Phổ**: EMP hạt nhân bao gồm thành phần E1 kéo dài ngắn, E2 trung gian và E3 kéo dài hơn, mỗi thành phần ảnh hưởng đến các loại cơ sở hạ tầng khác nhau.
+        2. **Đặc Điểm Phổ**: Xung điện từ hạt nhân bao gồm thành phần E1 kéo dài ngắn, E2 trung gian và E3 kéo dài hơn, mỗi thành phần ảnh hưởng đến các loại cơ sở hạ tầng khác nhau.
         
-        3. **Tính Dễ Bị Tổn Thương của Công Nghệ**: Thiết bị điện tử hiện đại với vi xử lý và mạch tích hợp thể hiện tính dễ bị tổn thương cực đoan so với công nghệ đèn chân không cũ hơn, giải thích tại sao EMP là mối quan tâm lớn hơn ngày nay so với thời kỳ đầu hạt nhân.
+        3. **Tính Dễ Bị Tổn Thương của Công Nghệ**: Thiết bị điện tử hiện đại với vi xử lý và mạch tích hợp thể hiện tính dễ bị tổn thương cao hơn nhiều so với công nghệ đèn chân không cũ, giải thích tại sao xung điện từ là mối quan tâm lớn hơn ngày nay so với thời kỳ đầu hạt nhân.
         
-        4. **Phương Pháp Bảo Vệ**: Mô phỏng chứng minh hiệu quả của lồng Faraday và các phương pháp che chắn khác trong việc giảm thiểu tác động EMP.
+        4. **Phương Pháp Bảo Vệ**: Mô phỏng chứng minh hiệu quả của lồng Faraday và các phương pháp che chắn khác trong việc giảm thiểu tác động xung điện từ.
         
-        5. **Vấn Đề Cơ Sở Hạ Tầng Quan Trọng**: Lưới điện và mạng thông tin liên lạc thể hiện tính dễ bị tổn thương đặc biệt do mạng lưới dẫn điện rộng lớn của chúng có thể hoạt động như ăng-ten cho EMP.
+        5. **Vấn Đề Cơ Sở Hạ Tầng Quan Trọng**: Lưới điện và mạng thông tin liên lạc thể hiện tính dễ bị tổn thương đặc biệt do mạng lưới dẫn điện rộng lớn của chúng có thể hoạt động như ăng-ten cho xung điện từ.
         
-        Hiểu biết về hiệu ứng EMP là rất quan trọng cho việc bảo vệ cơ sở hạ tầng quan trọng, hoạt động quân sự và chuẩn bị cho thảm họa.
+        Hiểu biết về hiệu ứng xung điện từ rất quan trọng cho việc bảo vệ cơ sở hạ tầng quan trọng, hoạt động quân sự và chuẩn bị cho thảm họa.
         """,
         
         "fallout": """
-        ### Kết Luận Khoa Học về Mưa Phóng Xạ Hạt Nhân
+        ### Kết Luận Khoa Học về Phóng Xạ Rơi Hạt Nhân
         
-        Mô phỏng mưa phóng xạ minh họa một số nguyên tắc chính của mưa phóng xạ hạt nhân:
+        Mô phỏng phóng xạ rơi minh họa một số nguyên tắc chính của phóng xạ rơi hạt nhân:
         
-        1. **Phụ Thuộc Độ Cao**: Vụ nổ trên mặt đất hoặc gần mặt đất tạo ra mưa phóng xạ nhiều hơn đáng kể so với vụ nổ trên không, do sự hút đất vào quả cầu lửa.
+        1. **Phụ Thuộc Độ Cao**: Vụ nổ trên mặt đất hoặc gần mặt đất tạo ra phóng xạ rơi nhiều hơn đáng kể so với vụ nổ trên không, do sự cuốn đất vào quả cầu lửa.
         
-        2. **Tác Động Thời Tiết**: Mô hình gió ảnh hưởng mạnh đến phân bố mưa phóng xạ, tạo ra các mẫu ô nhiễm không đối xứng xuôi theo gió từ điểm nổ.
+        2. **Tác Động Thời Tiết**: Mô hình gió ảnh hưởng mạnh đến phân bố phóng xạ rơi, tạo ra các mẫu ô nhiễm không đối xứng xuôi theo gió từ điểm nổ.
         
-        3. **Đặc Điểm Phân Rã**: Định luật phân rã t^-1.2 (mối quan hệ Way-Wigner) dự đoán chính xác sự giảm bức xạ tổng thể theo thời gian, mặc dù các đồng vị cụ thể có thời gian bán rã khác nhau.
+        3. **Đặc Điểm Phân Rã**: Định luật phân rã t^-1,2 (mối quan hệ Way-Wigner) dự đoán chính xác sự giảm bức xạ tổng thể theo thời gian, mặc dù các đồng vị cụ thể có thời gian bán rã khác nhau.
         
-        4. **Hình Thành Điểm Nóng**: Mô phỏng cho thấy cách đặc điểm địa hình và điều kiện thời tiết có thể tạo ra các "điểm nóng" mưa phóng xạ tập trung xa từ điểm nổ.
+        4. **Hình Thành Điểm Nóng**: Mô phỏng cho thấy cách đặc điểm địa hình và điều kiện thời tiết có thể tạo ra các "điểm nóng" phóng xạ rơi tập trung xa từ điểm nổ.
         
-        5. **Phân Bố Tốc Độ Liều Lượng**: Mức bức xạ từ mưa phóng xạ tuân theo các mẫu phức tạp dựa trên thời gian, khoảng cách và điều kiện thời tiết, giải thích tại sao việc giám sát mưa phóng xạ đòi hỏi mạng lưới đo lường tinh vi.
+        5. **Phân Bố Tốc Độ Liều Lượng**: Mức bức xạ từ phóng xạ rơi tuân theo các mẫu phức tạp dựa trên thời gian, khoảng cách và điều kiện thời tiết, giải thích tại sao việc giám sát phóng xạ rơi đòi hỏi mạng lưới đo lường tinh vi.
         
         6. **Hiệu Ứng Dài Hạn**: Mặc dù bức xạ mạnh nhất xảy ra trong vài ngày đầu, một số khu vực có thể vẫn bị ô nhiễm trong nhiều năm hoặc thập kỷ do các đồng vị sống lâu.
         
@@ -312,19 +312,19 @@ conclusions = {
         """,
         
         "flash_effects": """
-        ### Kết Luận Khoa Học về Hiệu Ứng Ánh Sáng Hạt Nhân
+        ### Kết Luận Khoa Học về Hiệu Ứng Ánh Chớp Hạt Nhân
         
-        Mô phỏng ánh sáng hạt nhân làm nổi bật một số hiện tượng quan trọng:
+        Mô phỏng ánh chớp hạt nhân làm nổi bật một số hiện tượng quan trọng:
         
-        1. **Quy Mô Cường Độ**: Mô phỏng minh họa cường độ chưa từng có của ánh sáng hạt nhân, sáng hơn nhiều bậc so với bất kỳ nguồn sáng tự nhiên nào, giải thích tại sao thương tích ở mắt xảy ra ở khoảng cách lớn trong các thử nghiệm lịch sử.
+        1. **Quy Mô Cường Độ**: Mô phỏng minh họa cường độ chưa từng có của ánh chớp hạt nhân, sáng hơn nhiều bậc so với bất kỳ nguồn sáng tự nhiên nào, giải thích tại sao thương tích ở mắt xảy ra ở khoảng cách lớn trong các thử nghiệm lịch sử.
         
-        2. **Đặc Điểm Xung**: Ánh sáng hạt nhân có đặc điểm thời gian với một đỉnh ban đầu cực kỳ sáng tiếp theo là bức xạ nhiệt kéo dài hơn.
+        2. **Đặc Điểm Xung**: Ánh chớp hạt nhân có đặc điểm thời gian với một đỉnh ban đầu cực kỳ sáng tiếp theo là bức xạ nhiệt kéo dài hơn.
         
-        3. **Cơ Chế Tổn Thương Mắt**: Các cơ chế tổn thương mắt khác nhau (mù tạm thời do ánh sáng, bỏng võng mạc, tổn thương giác mạc) phụ thuộc vào cường độ, phân bố phổ và hướng nhìn.
+        3. **Cơ Chế Tổn Thương Mắt**: Các cơ chế tổn thương mắt khác nhau (mù tạm thời do ánh chớp, bỏng võng mạc, tổn thương giác mạc) phụ thuộc vào cường độ, phân bố phổ và hướng nhìn.
         
         4. **Phụ Thuộc Khoảng Cách**: Mô phỏng cho thấy cách hiệu ứng ánh sáng tuân theo mối quan hệ nghịch đảo bình phương với khoảng cách, được điều chỉnh bởi sự giảm dần của khí quyển.
         
-        5. **Yếu Tố Thời Gian Trong Ngày**: Giãn đồng tử vào ban đêm làm tăng đáng kể tính dễ bị tổn thương với hiệu ứng ánh sáng, giải thích các quan sát lịch sử về phạm vi tổn thương mắt lớn hơn vào ban đêm.
+        5. **Yếu Tố Thời Điểm Trong Ngày**: Giãn đồng tử vào ban đêm làm tăng đáng kể tính dễ bị tổn thương với hiệu ứng ánh chớp, giải thích các quan sát lịch sử về phạm vi tổn thương mắt lớn hơn vào ban đêm.
         
         Hiểu biết về những hiệu ứng này vẫn quan trọng cho phân tích lịch sử và chuẩn bị y tế.
         """

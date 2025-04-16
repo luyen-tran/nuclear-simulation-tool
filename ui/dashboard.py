@@ -516,14 +516,14 @@ def run_dashboard():
     
     # Thiết lập cấu hình trang
     st.set_page_config(
-        page_title="Nuclear Physics Simulation",
-        page_icon="☢️",
+        page_title=locale.get_text("app.page_title"),
+        page_icon=locale.get_text("app.icon"),
         layout="wide",
         initial_sidebar_state="expanded",
         menu_items={
-            "Get help": "https://www.example.com/help",
-            "Report a bug": "https://www.example.com/bug",
-            "About": "# Nuclear Physics Simulation\nPhần mềm mô phỏng vật lý hạt nhân."
+            "Get help": locale.get_text("app.menu.get_help"),
+            "Report a bug": locale.get_text("app.menu.report_bug"),
+            "About": locale.get_text("app.menu.about")
         }
     )
     
