@@ -36,6 +36,18 @@ def render_page():
             step=100,
             help="Số lượng neutron để mô phỏng"
         )
+        
+        initial_distribution = st.selectbox(
+            "Phân bố ban đầu của neutron",
+            options=["point", "uniform", "gaussian"],
+            index=0,
+            format_func=lambda x: {
+                "point": "Tại tâm (điểm)",
+                "uniform": "Đồng đều trong hệ thống", 
+                "gaussian": "Gaussian xung quanh tâm"
+            }.get(x, x),
+            help="Phân bố không gian ban đầu của neutron"
+        )
     
     with col2:
         fission_xs = st.slider(
@@ -66,17 +78,57 @@ def render_page():
         )
     
     # Tùy chọn nâng cao
-    with st.expander(locale.get_text("monte.advanced_options")):
-        fission_neutrons = st.slider(
-            locale.get_text("monte.average_fission_neutrons"),
-            min_value=1.0,
-            max_value=5.0,
-            value=2.43,
-            step=0.01,
-        )
+    with st.expander(locale.get_text("monte.advanced_options"), expanded=False):
+        col1, col2 = st.columns(2)
         
-        show_progress = st.checkbox(locale.get_text("monte.show_progress"), value=True)
-        fission_chain = st.checkbox(locale.get_text("monte.simulate_fission_chain"), value=True)
+        with col1:
+            fission_neutrons = st.slider(
+                locale.get_text("monte.average_fission_neutrons"),
+                min_value=1.0,
+                max_value=5.0,
+                value=2.43,
+                step=0.01,
+                help="Số neutron trung bình sinh ra từ mỗi phản ứng phân hạch"
+            )
+            
+            energy_groups = st.slider(
+                "Số nhóm năng lượng",
+                min_value=1,
+                max_value=7,
+                value=1,
+                step=1,
+                help="Số nhóm năng lượng cho tính toán đa nhóm (1 = một nhóm)"
+            )
+            
+            max_generations = st.slider(
+                "Số thế hệ tối đa",
+                min_value=5,
+                max_value=50,
+                value=20,
+                step=5,
+                help="Số thế hệ tối đa cho mô phỏng chuỗi phân hạch"
+            )
+        
+        with col2:
+            show_progress = st.checkbox(locale.get_text("monte.show_progress"), value=True,
+                                       help="Hiển thị thanh tiến trình trong quá trình mô phỏng")
+            
+            fission_chain = st.checkbox(locale.get_text("monte.simulate_fission_chain"), value=True,
+                                       help="Mô phỏng chuỗi phản ứng phân hạch để tính hệ số nhân neutron k-hiệu quả")
+            
+            use_parallel = st.checkbox("Sử dụng tính toán song song", value=False,
+                                      help="Tăng tốc mô phỏng bằng cách sử dụng nhiều lõi CPU")
+            
+            if use_parallel:
+                import multiprocessing as mp
+                max_cores = mp.cpu_count()
+                n_cores = st.slider("Số lõi CPU sử dụng", 
+                                  min_value=1, 
+                                  max_value=max_cores, 
+                                  value=max(1, max_cores-1),
+                                  help=f"Hệ thống của bạn có {max_cores} lõi CPU")
+            else:
+                n_cores = None
     
     # Chạy mô phỏng
     if st.button(locale.get_text("monte.button"), type="primary", use_container_width=True):
@@ -87,18 +139,41 @@ def render_page():
                 fission_xs=fission_xs,
                 scattering_xs=scattering_xs,
                 absorption_xs=absorption_xs,
-                fission_neutrons=fission_neutrons
+                fission_neutrons=fission_neutrons,
+                energy_groups=energy_groups,
+                max_generations=max_generations,
+                initial_distribution=initial_distribution
             )
             
             # Chạy mô phỏng
             results = model.simulate_neutrons(
                 num_neutrons=num_neutrons,
                 show_progress=show_progress,
-                fission_chain=fission_chain
+                fission_chain=fission_chain,
+                use_parallel=use_parallel,
+                n_cores=n_cores
             )
             
-            # Hiển thị thời gian chạy
+            # Hiển thị thời gian chạy và thông tin
             st.info(locale.get_text("monte.execution_time", time=results['elapsed_time']))
+            
+            # Hiển thị tóm tắt thống kê
+            st.subheader("Tóm tắt kết quả")
+            stats_col1, stats_col2, stats_col3 = st.columns(3)
+            with stats_col1:
+                st.metric("Tổng số tương tác", 
+                         value=results['fissions'] + results['absorptions'] + results['escapes'])
+            with stats_col2:
+                if 'max_generation' in results:
+                    st.metric("Số thế hệ mô phỏng", value=results['max_generation'])
+            with stats_col3:
+                if results['k_effective'] is not None:
+                    k_status = "🟢 Gần tới hạn"
+                    if results['k_effective'] < 0.95:
+                        k_status = "🔵 Dưới tới hạn"
+                    elif results['k_effective'] > 1.05:
+                        k_status = "🔴 Trên tới hạn"
+                    st.metric("Trạng thái hệ thống", value=k_status)
             
             # Tạo biểu đồ phân bố tương tác
             interaction_counts = [results['fissions'], results['absorptions'], results['escapes']]
@@ -189,6 +264,63 @@ def render_page():
                     st.warning(locale.get_text("chart.supercritical"))
                 else:
                     st.success(locale.get_text("chart.critical"))
+                
+                # Hiển thị thông tin hội tụ
+                if 'max_generation' in results and results['max_generation'] < max_generations:
+                    st.success(f"Mô phỏng đã hội tụ sau {results['max_generation']} thế hệ.")
+                    
+            # Nếu sử dụng tính toán đa nhóm, hiển thị phân tích phổ năng lượng
+            if energy_groups > 1:
+                st.subheader("Phân tích phổ năng lượng")
+                
+                # Tạo biểu đồ cho phổ năng lượng
+                energy_fig = go.Figure()
+                
+                # Giả định các nhóm năng lượng theo thứ tự giảm dần
+                energy_boundaries = np.logspace(1, -5, energy_groups + 1)  # Từ 10 MeV đến 0.00001 MeV
+                group_names = [f"Nhóm {i+1}<br>({energy_boundaries[i]:.2e}-{energy_boundaries[i+1]:.2e} MeV)" 
+                              for i in range(energy_groups)]
+                
+                # Vẽ tiết diện theo nhóm năng lượng
+                x = list(range(energy_groups))
+                
+                energy_fig.add_trace(go.Bar(
+                    x=x, 
+                    y=model.fission_xs if isinstance(model.fission_xs, np.ndarray) else [model.fission_xs] * energy_groups,
+                    name='Tiết diện phân hạch',
+                    marker_color='red'
+                ))
+                
+                energy_fig.add_trace(go.Bar(
+                    x=x, 
+                    y=model.scattering_xs if isinstance(model.scattering_xs, np.ndarray) else [model.scattering_xs] * energy_groups,
+                    name='Tiết diện tán xạ',
+                    marker_color='blue'
+                ))
+                
+                energy_fig.add_trace(go.Bar(
+                    x=x, 
+                    y=model.absorption_xs if isinstance(model.absorption_xs, np.ndarray) else [model.absorption_xs] * energy_groups,
+                    name='Tiết diện hấp thụ',
+                    marker_color='green'
+                ))
+                
+                energy_fig.update_layout(
+                    title="Phân tích tiết diện theo nhóm năng lượng",
+                    xaxis_title="Nhóm năng lượng",
+                    yaxis_title="Tiết diện (cm⁻¹)",
+                    barmode='group',
+                    xaxis=dict(
+                        tickmode='array',
+                        tickvals=x,
+                        ticktext=group_names
+                    ),
+                    template=theme_manager.get_template()
+                )
+                
+                plotly_chart_with_theme(energy_fig, use_container_width=True)
+                
+                st.info("Trong tính toán đa nhóm, nhóm 1 tương ứng với năng lượng cao nhất và giảm dần theo số thứ tự nhóm")
     
     # Phần kết luận khoa học
     with st.expander(locale.get_text("conclusions.title"), expanded=True):
